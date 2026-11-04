@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#050a13">
+<title>Clasificación de animales</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Iconos reutilizables -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <symbol id="px-heart" viewBox="0 0 9 8">
+      <g shape-rendering="crispEdges">
+        <rect x="1" y="0" width="3" height="1" fill="currentColor"/>
+        <rect x="5" y="0" width="3" height="1" fill="currentColor"/>
+        <rect x="0" y="1" width="9" height="3" fill="currentColor"/>
+        <rect x="1" y="4" width="7" height="1" fill="currentColor"/>
+        <rect x="2" y="5" width="5" height="1" fill="currentColor"/>
+        <rect x="3" y="6" width="3" height="1" fill="currentColor"/>
+        <rect x="4" y="7" width="1" height="1" fill="currentColor"/>
+        <rect x="1" y="1" width="2" height="1" fill="#fff" fill-opacity=".6"/>
+        <rect x="1" y="2" width="1" height="1" fill="#fff" fill-opacity=".6"/>
+      </g>
+    </symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24">
+      <path d="M6 15l6-6 6 6" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="i-jump" viewBox="0 0 24 24">
+      <path d="M6 12l6-6 6 6M6 19l6-6 6 6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="i-grab" viewBox="0 0 24 24">
+      <g fill="currentColor">
+        <rect x="4.5" y="8" width="3" height="8" rx="1.5"/>
+        <rect x="8.5" y="4" width="3" height="12" rx="1.5"/>
+        <rect x="12.5" y="3" width="3" height="13" rx="1.5"/>
+        <rect x="16.5" y="6" width="3" height="10" rx="1.5"/>
+        <path d="M4.5 13h15v1.5a7 7 0 0 1-7 7h-1a7 7 0 0 1-7-7z"/>
+      </g>
+    </symbol>
+    <symbol id="i-shoot" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+        <circle cx="12" cy="12" r="6.5"/>
+        <path d="M12 2.5v4M12 17.5v4M2.5 12h4M17.5 12h4"/>
+      </g>
+      <circle cx="12" cy="12" r="1.8" fill="currentColor"/>
+    </symbol>
+    <symbol id="i-rotl" viewBox="0 0 24 24">
+      <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8M3 3v5h5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="i-rotr" viewBox="0 0 24 24">
+      <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8M21 3v5h-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+  </svg>
+
+  <!-- Destello de daño en los bordes de la pantalla -->
+  <div id="fx" aria-hidden="true"></div>
+
+  <header id="hud">
+    <section class="panel life" id="hud-lives" data-lives="3" aria-label="Vidas">
+      <div class="panel-label">Vidas</div>
+      <div class="hearts">
+        <svg class="heart"><use href="#px-heart"/></svg>
+        <svg class="heart"><use href="#px-heart"/></svg>
+        <svg class="heart"><use href="#px-heart"/></svg>
+      </div>
+      <div class="lifebar"><i id="lifebar-fill"></i><b></b><b></b></div>
+    </section>
+
+    <section class="timer" id="hud-time" aria-label="Tiempo restante">
+      <svg viewBox="0 0 72 72" aria-hidden="true">
+        <circle class="track" cx="36" cy="36" r="30"/>
+        <circle class="prog" id="time-ring" cx="36" cy="36" r="30"/>
+      </svg>
+      <div class="time-text"><span id="time-text">10:00</span><small>tiempo</small></div>
+    </section>
+
+    <section class="panel score" id="hud-score-card" aria-label="Puntos">
+      <div class="panel-label">Puntos</div>
+      <div id="score-num">0</div>
+      <div class="pops" id="pops"></div>
+    </section>
+
+    <div class="sub">
+      <div class="chip level" id="hud-level">Nivel 1/3</div>
+      <div class="chip goal"><span id="hud-goal">0/0</span><div class="bar"><i id="goal-fill"></i></div></div>
+      <div class="chip held" id="hud-held"><span class="emoji" id="held-emoji">✋</span><span id="held-name">Manos vacías</span></div>
+      <div class="chip enemy" id="hud-enemy" data-state="wait"><span class="emoji">👾</span><span id="enemy-text">Enemigo: esperando</span></div>
+    </div>
+
+    <div id="toast" role="status" aria-live="polite"></div>
+  </header>
+
+  <div id="legend">
+    <div><i class="dot v"></i><b class="v">Izquierda, vertebrados:</b> vaca, conejo, tortuga, cerdo, rana.</div>
+    <div><i class="dot i"></i><b class="i">Derecha, invertebrados:</b> mariposa, caracol, araña, abeja, cangrejo, gusano.</div>
+  </div>
+
+  <div id="controls">
+    <div class="cluster left">
+      <div class="dpad">
+        <button id="btn-up" class="key d up" type="button" aria-label="Arriba"><svg class="ico"><use href="#i-chev"/></svg></button>
+        <button id="btn-left" class="key d lf" type="button" aria-label="Izquierda"><svg class="ico"><use href="#i-chev"/></svg></button>
+        <button id="btn-down" class="key d dn" type="button" aria-label="Abajo"><svg class="ico"><use href="#i-chev"/></svg></button>
+        <button id="btn-right" class="key d rt" type="button" aria-label="Derecha"><svg class="ico"><use href="#i-chev"/></svg></button>
+      </div>
+      <button id="btn-rotl" class="key round sm rot" type="button" aria-label="Girar a la izquierda"><svg class="ico"><use href="#i-rotl"/></svg><kbd>Q</kbd></button>
+    </div>
+
+    <div class="cluster actions">
+      <button id="btn-rotr" class="key round sm rot" type="button" aria-label="Girar a la derecha"><svg class="ico"><use href="#i-rotr"/></svg></button>
+      <button id="btn-jump" class="key round act jump" type="button" aria-label="Saltar"><svg class="ico"><use href="#i-jump"/></svg><span class="lbl">Saltar</span><kbd>Esp</kbd></button>
+      <button id="btn-grab" class="key round act grab" type="button" aria-label="Agarrar o soltar"><svg class="ico"><use href="#i-grab"/></svg><span class="lbl">Agarrar</span><kbd>E</kbd></button>
+      <button id="btn-shoot" class="key round act shoot" type="button" aria-label="Disparar"><svg class="ico"><use href="#i-shoot"/></svg><span class="lbl">Disparar</span><kbd>R</kbd></button>
+    </div>
+  </div>
+
+  <div id="overlay">
+    <div class="sheet">
+      <h1 id="ov-title">Clasificación de animales</h1>
+      <p id="ov-text"></p>
+      <ul id="ov-rules">
+        <li><span class="ri">🐾</span><span>Izquierda va el corral azul de <b>vertebrados</b>. Derecha va el corral naranja de <b>invertebrados</b>.</span></li>
+        <li><span class="ri">✅</span><span>Corral correcto: <b>+10 pts</b>. Corral incorrecto: <b>−10 pts</b>.</span></li>
+        <li><span class="ri">👾</span><span>El enemigo gris te persigue. Con un animal en las manos te lo roba (<b>−5 pts</b>). Con las manos vacías te quita una vida. Tienes <b>3 vidas</b>.</span></li>
+        <li><span class="ri">🔫</span><span>Dispara para aturdirlo <b>10 segundos</b>: le salen estrellas.</span></li>
+        <li><span class="ri">⏱️</span><span>Tienes <b>10 minutos</b>. Haz la mayor puntuación posible.</span></li>
+        <li><span class="ri">⌨️</span><span>Teclado: WASD o flechas para moverte, Q para girar, Espacio salta, E o F agarra y suelta, R dispara.</span></li>
+      </ul>
+      <button id="ov-btn" type="button">Empezar</button>
+    </div>
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
